@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-# shellcheck source=lib.sh
-source "${SCRIPT_DIR}/lib.sh"
+# shellcheck source=common.sh
+source "${SCRIPT_DIR}/common.sh"
 
 log "Host pre-flight"
 
@@ -24,7 +24,7 @@ chmod 755 "${VM_DIR}"
 # SSH key for the lab
 if [[ ! -f "${SSH_KEY}" ]]; then
   log "Generating SSH keypair at ${SSH_KEY}"
-  ssh-keygen -t ed25519 -N '' -f "${SSH_KEY}" -C "slinky-lab" >/dev/null
+  ssh-keygen -t ed25519 -N '' -f "${SSH_KEY}" -C "slurm-lab" >/dev/null
 fi
 chmod 600 "${SSH_KEY}"
 

@@ -1,16 +1,16 @@
 #!/usr/bin/env bash
-# Install the Slinky stack (cert-manager, slurm-operator, slurm cluster) on the
-# instant-rke2-lab cluster. Idempotent — safe to re-run after edits.
+# Install the Slurm stack (cert-manager, slurm-operator, slurm cluster) on the
+# rke2-cluster-setup cluster. Idempotent — safe to re-run after edits.
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 LAB_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 
 RED=$'\033[0;31m'; GREEN=$'\033[0;32m'; YELLOW=$'\033[1;33m'; BLUE=$'\033[0;34m'; NC=$'\033[0m'
-log()  { printf '%s[slinky]%s %s\n' "$BLUE"   "$NC" "$*" >&2; }
-ok()   { printf '%s[slinky]%s %s\n' "$GREEN"  "$NC" "$*" >&2; }
-warn() { printf '%s[slinky]%s %s\n' "$YELLOW" "$NC" "$*" >&2; }
-die()  { printf '%s[slinky]%s %s\n' "$RED"    "$NC" "$*" >&2; exit 1; }
+log()  { printf '%s[slurm]%s %s\n' "$BLUE"   "$NC" "$*" >&2; }
+ok()   { printf '%s[slurm]%s %s\n' "$GREEN"  "$NC" "$*" >&2; }
+warn() { printf '%s[slurm]%s %s\n' "$YELLOW" "$NC" "$*" >&2; }
+die()  { printf '%s[slurm]%s %s\n' "$RED"    "$NC" "$*" >&2; exit 1; }
 
 export KUBECONFIG="${KUBECONFIG:-${LAB_ROOT}/.state/kubeconfig}"
 [[ -f "$KUBECONFIG" ]] || die "kubeconfig not found at $KUBECONFIG — run 'make all' from the lab root first"
@@ -22,7 +22,7 @@ command -v kubectl >/dev/null || die "kubectl not installed — run 'make prereq
 ###############################################################################
 if ! command -v helm >/dev/null 2>&1; then
   log "Installing helm"
-  curl -fsSL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+  curl -fsSL https://raw.githubusercontent.com/helm/helm/main/provisioning/get-helm-3 | bash
 fi
 helm version --short
 
@@ -58,13 +58,13 @@ fi
 ###############################################################################
 log "Installing slurm-operator-crds"
 helm upgrade --install slurm-operator-crds \
-  oci://ghcr.io/slinkyproject/charts/slurm-operator-crds \
+  oci://ghcr.io/slurmproject/charts/slurm-operator-crds \
   --wait --timeout 5m
 
-log "Installing slurm-operator (namespace: slinky)"
+log "Installing slurm-operator (namespace: slurm)"
 helm upgrade --install slurm-operator \
-  oci://ghcr.io/slinkyproject/charts/slurm-operator \
-  --namespace slinky --create-namespace \
+  oci://ghcr.io/slurmproject/charts/slurm-operator \
+  --namespace slurm --create-namespace \
   -f "${SCRIPT_DIR}/values/slurm-operator.yaml" \
   --wait --timeout 5m
 
@@ -73,18 +73,18 @@ helm upgrade --install slurm-operator \
 ###############################################################################
 log "Installing slurm cluster (namespace: slurm) — this pulls slurmctld/slurmd images, can take ~5 min"
 helm upgrade --install slurm \
-  oci://ghcr.io/slinkyproject/charts/slurm \
+  oci://ghcr.io/slurmproject/charts/slurm \
   --namespace slurm --create-namespace \
   -f "${SCRIPT_DIR}/values/slurm.yaml" \
   --wait --timeout 10m
 
-ok "Slinky stack installed"
+ok "Slurm stack installed"
 echo
 log "Pods:"
-kubectl -n slinky get pods
+kubectl -n slurm get pods
 kubectl -n slurm  get pods
 echo
 log "Login pod is your sbatch entrypoint:"
-echo "    ./scripts/login.sh"
-echo "    ./scripts/submit.sh examples/01-hello.sbatch"
-echo "    ./scripts/status.sh"
+echo "    ./provisioning/login.sh"
+echo "    ./provisioning/submit.sh examples/01-hello.sbatch"
+echo "    ./provisioning/status.sh"

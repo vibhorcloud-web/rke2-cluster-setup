@@ -3,13 +3,13 @@
 
 NAMESPACE="slurm"
 CONTROLLER_POD="slurm-controller-0"
-LOCAL_SCRIPT="/tmp/slinky-cpp.sh"
-REMOTE_SCRIPT="/tmp/slinky-cpp.sh"
+LOCAL_SCRIPT="/tmp/slurm-cpp.sh"
+REMOTE_SCRIPT="/tmp/slurm-cpp.sh"
 
 echo "1. Generating Distributed C++ job script..."
 cat << 'EOF' > $LOCAL_SCRIPT
 #!/bin/bash
-#SBATCH --job-name=slinky-cpp
+#SBATCH --job-name=slurm-cpp
 #SBATCH --nodes=2
 #SBATCH --ntasks=4
 #SBATCH --tasks-per-node=2
@@ -85,4 +85,4 @@ kubectl exec -it -n $NAMESPACE $CONTROLLER_POD -- squeue
 
 echo "----------------------------------------"
 echo "To view the C++ execution results once the job completes, run:"
-echo "kubectl exec -it -n slurm slurm-worker-slinky-0 -- cat /tmp/cpp-parallel-${JOB_ID}.out"
+echo "kubectl exec -it -n slurm slurm-worker-slurm-0 -- cat /tmp/cpp-parallel-${JOB_ID}.out"

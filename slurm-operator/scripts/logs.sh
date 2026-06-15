@@ -3,8 +3,8 @@
 # Usage: logs.sh <jobid>
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-# shellcheck source=lib.sh
-source "${SCRIPT_DIR}/lib.sh"
+# shellcheck source=common.sh
+source "${SCRIPT_DIR}/common.sh"
 
 JID="${1:-}"
 [[ -n "$JID" ]] || { echo "usage: $0 <jobid>"; exit 2; }

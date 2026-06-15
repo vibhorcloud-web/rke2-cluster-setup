@@ -2,8 +2,8 @@
 # Drop into the slurm login pod for interactive sbatch / squeue / sinfo.
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-# shellcheck source=lib.sh
-source "${SCRIPT_DIR}/lib.sh"
+# shellcheck source=common.sh
+source "${SCRIPT_DIR}/common.sh"
 
 POD="$(login_pod)"
 echo "Exec into ${SLURM_NS}/${POD}"

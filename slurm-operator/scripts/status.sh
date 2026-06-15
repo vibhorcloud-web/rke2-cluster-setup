@@ -2,8 +2,8 @@
 # Quick status: nodes, partitions, queue.
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-# shellcheck source=lib.sh
-source "${SCRIPT_DIR}/lib.sh"
+# shellcheck source=common.sh
+source "${SCRIPT_DIR}/common.sh"
 
 POD="$(login_pod)"
 echo "── sinfo ──"

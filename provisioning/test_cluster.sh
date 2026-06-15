@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-# shellcheck source=lib.sh
-source "${SCRIPT_DIR}/lib.sh"
+# shellcheck source=common.sh
+source "${SCRIPT_DIR}/common.sh"
 
 KCONF="${STATE_DIR}/kubeconfig"
-[[ -f "$KCONF" ]] || die "kubeconfig missing — run 40-fetch-kubeconfig.sh"
-command -v kubectl >/dev/null 2>&1 || die "kubectl not installed — run 00-host-prep.sh"
+[[ -f "$KCONF" ]] || die "kubeconfig missing — run get_kubeconfig.sh"
+command -v kubectl >/dev/null 2>&1 || die "kubectl not installed — run prep_host.sh"
 
 export KUBECONFIG="${KCONF}"
 

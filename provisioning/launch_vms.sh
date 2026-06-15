@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-# shellcheck source=lib.sh
-source "${SCRIPT_DIR}/lib.sh"
+# shellcheck source=common.sh
+source "${SCRIPT_DIR}/common.sh"
 
-[[ -f "${SSH_KEY}.pub" ]] || die "SSH key missing — run 00-host-prep.sh"
+[[ -f "${SSH_KEY}.pub" ]] || die "SSH key missing — run prep_host.sh"
 
 PUBKEY="$(cat "${SSH_KEY}.pub")"
 
@@ -14,7 +14,7 @@ create_vm() {
   local user_data="${vm_dir}/user-data.yaml"
 
   if multipass info "${name}" >/dev/null 2>&1; then
-    warn "VM ${name} already defined — skipping (use 99-destroy.sh to reset)"
+    warn "VM ${name} already defined — skipping (use teardown.sh to reset)"
     return 0
   fi
 

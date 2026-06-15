@@ -5,11 +5,11 @@
 # 1. ENVIRONMENT VARIABLES
 # ==========================================
 # In a traditional HPC cluster, you run 'sbatch' directly from a login node.
-# In Slinky, we must route our commands through Kubernetes to the controller pod.
+# In Slurm, we must route our commands through Kubernetes to the controller pod.
 NAMESPACE="slurm"
 CONTROLLER_POD="slurm-controller-0"
-LOCAL_SCRIPT="/tmp/slinky-multinode.sh"
-REMOTE_SCRIPT="/tmp/slinky-multinode.sh"
+LOCAL_SCRIPT="/tmp/slurm-multinode.sh"
+REMOTE_SCRIPT="/tmp/slurm-multinode.sh"
 
 # ==========================================
 # 2. CREATE THE SLURM BATCH SCRIPT
@@ -24,8 +24,8 @@ cat << 'EOF' > $LOCAL_SCRIPT
 # These #SBATCH comments are read by the Slurm scheduler before execution.
 # They define the exact hardware slice we are requesting from the NodeSet.
 
-#SBATCH --job-name=slinky-mpi-sim
-# Request exactly 2 compute nodes (which maps to your 2 Slinky worker pods).
+#SBATCH --job-name=slurm-mpi-sim
+# Request exactly 2 compute nodes (which maps to your 2 Slurm worker pods).
 #SBATCH --nodes=2
 # Request a total of 4 tasks (processes) for this job.
 #SBATCH --ntasks=4
@@ -37,7 +37,7 @@ cat << 'EOF' > $LOCAL_SCRIPT
 #SBATCH --error=/tmp/multi-node-%j.err
 
 # --- EXECUTION BLOCK ---
-# This part runs exactly ONCE on the primary allocated node (e.g., slinky-0).
+# This part runs exactly ONCE on the primary allocated node (e.g., slurm-0).
 
 echo "=== Cluster Allocation Status ==="
 echo "Allocated Nodes: $SLURM_JOB_NODELIST"
@@ -57,7 +57,7 @@ EOF
 # ==========================================
 # 3. TRANSFER THE SCRIPT TO THE CLUSTER
 # ==========================================
-# Because our Slinky cluster lacks a shared network drive (NFS), the controller pod
+# Because our Slurm cluster lacks a shared network drive (NFS), the controller pod
 # cannot see the file we just created on our local machine. We must physically copy
 # the script into the controller pod's local filesystem first.
 echo "2. Transferring job script to the Slurm controller pod..."
@@ -91,7 +91,7 @@ kubectl exec -it -n $NAMESPACE $CONTROLLER_POD -- squeue
 
 echo "----------------------------------------"
 echo "To view the results once the job completes, run:"
-# We hardcode 'slurm-worker-slinky-0' here because Slurm designates the lowest-numbered
+# We hardcode 'slurm-worker-slurm-0' here because Slurm designates the lowest-numbered
 # node in the allocation as the primary node, and that is where the batch script 
 # executes and writes its standard output.
-echo "kubectl exec -it -n slurm slurm-worker-slinky-0 -- cat /tmp/multi-node-${JOB_ID}.out"
+echo "kubectl exec -it -n slurm slurm-worker-slurm-0 -- cat /tmp/multi-node-${JOB_ID}.out"

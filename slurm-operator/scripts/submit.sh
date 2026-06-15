@@ -3,8 +3,8 @@
 # Usage: submit.sh examples/01-hello.sbatch [extra sbatch args]
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-# shellcheck source=lib.sh
-source "${SCRIPT_DIR}/lib.sh"
+# shellcheck source=common.sh
+source "${SCRIPT_DIR}/common.sh"
 
 [[ $# -ge 1 ]] || { echo "usage: $0 <sbatch-file> [sbatch args...]"; exit 2; }
 FILE="$1"; shift

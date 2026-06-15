@@ -3,13 +3,13 @@
 
 NAMESPACE="slurm"
 CONTROLLER_POD="slurm-controller-0"
-LOCAL_SCRIPT="/tmp/slinky-chunking.sh"
-REMOTE_SCRIPT="/tmp/slinky-chunking.sh"
+LOCAL_SCRIPT="/tmp/slurm-chunking.sh"
+REMOTE_SCRIPT="/tmp/slurm-chunking.sh"
 
 echo "1. Generating Distributed Data Chunking script..."
 cat << 'EOF' > $LOCAL_SCRIPT
 #!/bin/bash
-#SBATCH --job-name=slinky-chunking
+#SBATCH --job-name=slurm-chunking
 #SBATCH --nodes=2
 #SBATCH --ntasks=4
 #SBATCH --tasks-per-node=2
@@ -95,4 +95,4 @@ kubectl exec -it -n $NAMESPACE $CONTROLLER_POD -- squeue
 
 echo "----------------------------------------"
 echo "To view the chunking results once the job completes, run:"
-echo "kubectl exec -it -n slurm slurm-worker-slinky-0 -- cat /tmp/chunking-${JOB_ID}.out"
+echo "kubectl exec -it -n slurm slurm-worker-slurm-0 -- cat /tmp/chunking-${JOB_ID}.out"

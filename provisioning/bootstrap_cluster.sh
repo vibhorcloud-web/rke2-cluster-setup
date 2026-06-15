@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-# shellcheck source=lib.sh
-source "${SCRIPT_DIR}/lib.sh"
+# shellcheck source=common.sh
+source "${SCRIPT_DIR}/common.sh"
 
 CP_NAME="$(control_plane_name)"
 CP_IP="$(control_plane_ip)"
@@ -45,11 +45,11 @@ YAML
 
 log "Installing Cilium HelmChartConfig"
 # Render manifest with envsubst-style substitution from this shell
-CILIUM_TPL="${LAB_ROOT}/manifests/rke2-cilium-config.yaml"
+CILIUM_TPL="${LAB_ROOT}/k8s-manifests/rke2-cilium-config.yaml"
 [[ -f "${CILIUM_TPL}" ]] || die "Missing manifest template: ${CILIUM_TPL}"
 RENDERED="$(CP_IP="${CP_IP}" CILIUM_HUBBLE_UI="${CILIUM_HUBBLE_UI}" \
   envsubst '${CP_IP} ${CILIUM_HUBBLE_UI}' < "${CILIUM_TPL}")"
-ssh_run "${CP_IP}" "sudo tee /var/lib/rancher/rke2/server/manifests/rke2-cilium-config.yaml >/dev/null" <<<"${RENDERED}"
+ssh_run "${CP_IP}" "sudo tee /var/lib/rancher/rke2/server/k8s-manifests/rke2-cilium-config.yaml >/dev/null" <<<"${RENDERED}"
 
 log "Running RKE2 server installer on ${CP_NAME} (this downloads ~250 MB)"
 ssh_run "${CP_IP}" "curl -sfL https://get.rke2.io | sudo ${RKE2_ENV} sh -"

@@ -1,11 +1,11 @@
 SHELL := /usr/bin/env bash
-S := scripts
+S := provisioning
 
 .PHONY: help all prereqs vms cluster kubeconfig verify destroy status \
         ssh-cp1 ssh-w1 ssh-w2
 
 help:
-	@echo "instant-rke2-lab — RKE2 + Cilium on Multipass (macOS)"
+	@echo "rke2-cluster-setup — RKE2 + Cilium on Multipass (macOS)"
 	@echo
 	@echo "  make all         End-to-end: prereqs → vms → cluster → kubeconfig → verify"
 	@echo "  make prereqs     Install multipass/kubectl via brew, set up SSH key"
@@ -17,27 +17,27 @@ help:
 	@echo "  make status      Show multipass instances + node status"
 	@echo "  make ssh-cp1 / ssh-w1 / ssh-w2   SSH to a VM"
 	@echo
-	@echo "  Optional extras: see ./slinky/ for SLURM-on-Kubernetes examples (run manually)"
+	@echo "  Optional extras: see ./slurm-operator/ for SLURM-on-Kubernetes examples (run manually)"
 
 all: prereqs vms cluster kubeconfig verify
 
 prereqs:
-	$(S)/00-host-prep.sh
+	$(S)/prep_host.sh
 
 vms:
-	$(S)/20-create-vms.sh
+	$(S)/launch_vms.sh
 
 cluster:
-	$(S)/30-bootstrap-rke2.sh
+	$(S)/bootstrap_cluster.sh
 
 kubeconfig:
-	$(S)/40-fetch-kubeconfig.sh --print
+	$(S)/get_kubeconfig.sh --print
 
 verify:
-	$(S)/50-verify.sh
+	$(S)/test_cluster.sh
 
 destroy:
-	$(S)/99-destroy.sh
+	$(S)/teardown.sh
 
 status:
 	@multipass list

@@ -3,13 +3,13 @@
 
 NAMESPACE="slurm"
 CONTROLLER_POD="slurm-controller-0"
-LOCAL_SCRIPT="/tmp/slinky-multinode.sh"
-REMOTE_SCRIPT="/tmp/slinky-multinode.sh"
+LOCAL_SCRIPT="/tmp/slurm-multinode.sh"
+REMOTE_SCRIPT="/tmp/slurm-multinode.sh"
 
 echo "1. Generating multi-node Slurm batch job script..."
 cat << 'EOF' > $LOCAL_SCRIPT
 #!/bin/bash
-#SBATCH --job-name=slinky-mpi-sim
+#SBATCH --job-name=slurm-mpi-sim
 #SBATCH --nodes=2
 #SBATCH --ntasks=4
 #SBATCH --tasks-per-node=2
@@ -49,4 +49,4 @@ kubectl exec -it -n $NAMESPACE $CONTROLLER_POD -- squeue
 
 echo "----------------------------------------"
 echo "To view the results once the job completes, run:"
-echo "kubectl exec -it -n slurm slurm-worker-slinky-0 -- cat /tmp/multi-node-${JOB_ID}.out"
+echo "kubectl exec -it -n slurm slurm-worker-slurm-0 -- cat /tmp/multi-node-${JOB_ID}.out"

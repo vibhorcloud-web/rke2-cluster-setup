@@ -1,4 +1,4 @@
-# instant-rke2-lab
+# rke2-cluster-setup
 
 A self-contained **RKE2 + Cilium** Kubernetes lab that runs on a single Linux
 workstation in three KVM/libvirt VMs — without touching your host network or
@@ -31,7 +31,7 @@ to a working `kubectl get nodes`.
 - **Hubble** + Hubble UI for flow visibility
 - 3 Ubuntu 24.04 VMs provisioned by cloud-init, static IPs on `virbr0`
 - A kubeconfig on the host that talks to the API server through `virbr0`
-- A few examples to run slinky on `slinky-lab` folder
+- A few examples to run slurm on `slurm-lab` folder
 
 ## Requirements
 
@@ -43,8 +43,8 @@ to a working `kubectl get nodes`.
 ## Quickstart
 
 ```bash
-git clone https://github.com/MarcelloMorettoni/instant-rke2-lab.git
-cd instant-rke2-lab
+git clone https://github.com/vibhorcloud-web/rke2-cluster-setup.git
+cd rke2-cluster-setup
 make all
 ```
 
@@ -99,7 +99,7 @@ Any key type that OpenSSH supports works (`ed25519`, `rsa`, `ecdsa`). If
 
 ## Tunables
 
-All knobs live in [`config.env`](./config.env). Edit before `make all`. Common
+All knobs live in [`settings.env`](./settings.env). Edit before `make all`. Common
 changes:
 
 ```bash
@@ -119,7 +119,7 @@ KUBECTL_REPO_CHANNEL="v1.35"
 
 The repo is self-contained — clone it anywhere and it works. VM disks default
 to `vms/` inside the repo. If you want them on a different mount point (e.g. a
-fast NVMe), set `VM_DIR` in `config.env` before running `make all`.
+fast NVMe), set `VM_DIR` in `settings.env` before running `make all`.
 
 ## Operations
 
@@ -160,8 +160,8 @@ The control plane is configured with:
 - `tls-san` includes the host LAN IP so external `kubectl` can be wired up
 
 The Cilium chart is customized via a `HelmChartConfig`
-([`manifests/rke2-cilium-config.yaml`](./manifests/rke2-cilium-config.yaml))
-that's uploaded to `/var/lib/rancher/rke2/server/manifests/` *before*
+([`k8s-manifests/rke2-cilium-config.yaml`](./k8s-manifests/rke2-cilium-config.yaml))
+that's uploaded to `/var/lib/rancher/rke2/server/k8s-manifests/` *before*
 `rke2-server` starts. RKE2's built-in Helm controller picks it up on first
 reconcile and sets:
 
@@ -188,19 +188,19 @@ Each VM gets a NoCloud seed ISO with:
 ```
 .
 ├── Makefile                # all the entry points
-├── config.env              # tunables (sizes, IPs, RKE2 channel, Cilium flags)
-├── scripts/
-│   ├── lib.sh              # logging, ssh wrappers, sudo detection
-│   ├── 00-host-prep.sh
+├── settings.env              # tunables (sizes, IPs, RKE2 channel, Cilium flags)
+├── provisioning/
+│   ├── common.sh              # logging, ssh wrappers, sudo detection
+│   ├── prep_host.sh
 │   ├── 10-fetch-image.sh
-│   ├── 20-create-vms.sh
-│   ├── 30-bootstrap-rke2.sh
-│   ├── 40-fetch-kubeconfig.sh
-│   ├── 50-verify.sh
-│   └── 99-destroy.sh
-├── manifests/
+│   ├── launch_vms.sh
+│   ├── bootstrap_cluster.sh
+│   ├── get_kubeconfig.sh
+│   ├── test_cluster.sh
+│   └── teardown.sh
+├── k8s-manifests/
 │   └── rke2-cilium-config.yaml   # Cilium HelmChartConfig template
-├── slinky/                       # optional: SLURM-on-Kubernetes examples (run manually)
+├── slurm-operator/                       # optional: SLURM-on-Kubernetes examples (run manually)
 └── .state/                       # generated, gitignored: ssh_key, kubeconfig, node-token
 ```
 
@@ -210,7 +210,7 @@ Each VM gets a NoCloud seed ISO with:
 
 **`virt-install` permission denied** — you're not yet in the `libvirt` group.
 Either re-login after `make prereqs` or let the script keep falling back to
-`sudo` (`lib.sh` detects this automatically).
+`sudo` (`common.sh` detects this automatically).
 
 **A VM never reaches SSH.** `sudo virsh console <name>` to watch boot output.
 Most often cloud-init couldn't reach an apt mirror through NAT — check
@@ -230,21 +230,21 @@ sudo apt purge qemu-kvm libvirt-daemon-system libvirt-clients virtinst cloud-ima
 sudo deluser $USER libvirt && sudo deluser $USER kvm
 ```
 
-## Optional: Slinky (SLURM on Kubernetes)
+## Optional: Slurm (SLURM on Kubernetes)
 
-The `./slinky/` folder contains a self-contained [Slinky](https://github.com/SlinkyProject/slurm-operator)
+The `./slurm-operator/` folder contains a self-contained [Slurm](https://github.com/SlurmProject/slurm-operator)
 installation — SchedMD's SLURM operator for Kubernetes — along with scheduling
 and MPI job examples targeting the two worker nodes.
 
 It is **not part of `make all`**. Once your cluster is up, install it manually:
 
 ```bash
-cd slinky
+cd slurm
 ./install.sh          # deploys slurm-operator + a 2-node SLURM cluster
-./scripts/submit.sh examples/01-hello.sbatch
+./provisioning/submit.sh examples/01-hello.sbatch
 ```
 
-See [`slinky/README.md`](./slinky/README.md) for the full walkthrough.
+See [`slurm-operator/README.md`](./slurm-operator/README.md) for the full walkthrough.
 
 ## Security note
 

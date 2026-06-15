@@ -1,10 +1,10 @@
-# slurm chart overrides for the instant-rke2-lab (2 worker nodes).
-# Default chart values: https://github.com/SlinkyProject/slurm-operator/blob/main/helm/slurm/values.yaml
+# slurm chart overrides for the rke2-cluster-setup (2 worker nodes).
+# Default chart values: https://github.com/SlurmProject/slurm-operator/blob/main/helm/slurm/values.yaml
 
 # Two slurmd pods, one per worker node. Anti-affinity prevents both from
 # stacking on the same worker.
 nodesets:
-  slinky:
+  slurm:
     enabled: true
     replicas: 2
     scalingMode: StatefulSet
@@ -21,7 +21,7 @@ nodesets:
 
 # Login pod for sbatch / squeue / sinfo. ClusterIP since we have no LB.
 loginsets:
-  slinky:
+  slurm:
     enabled: true
     replicas: 1
     service:

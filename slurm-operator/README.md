@@ -1,7 +1,7 @@
-# Slinky on the lab
+# Slurm on the lab
 
-Run [Slinky](https://slinky.schedmd.com/) (SchedMD's SLURM-on-Kubernetes) on
-top of the `instant-rke2-lab` cluster, then exercise scheduling and small MPI
+Run [Slurm](https://slurm.schedmd.com/) (SchedMD's SLURM-on-Kubernetes) on
+top of the `rke2-cluster-setup` cluster, then exercise scheduling and small MPI
 jobs with just two worker nodes.
 
 ## What gets installed
@@ -10,9 +10,9 @@ jobs with just two worker nodes.
 |-----------|------------|-----------|----------|
 | local-path-provisioner | apply YAML | `local-path-storage` | default StorageClass (RKE2 ships none) |
 | cert-manager | `jetstack/cert-manager` | `cert-manager` | webhook certs for the operator |
-| slurm-operator-crds | `oci://ghcr.io/slinkyproject/charts/slurm-operator-crds` | (cluster-scoped) | `NodeSet` / `LoginSet` / `Token` CRDs |
-| slurm-operator | `oci://ghcr.io/slinkyproject/charts/slurm-operator` | `slinky` | reconciles SLURM resources |
-| slurm | `oci://ghcr.io/slinkyproject/charts/slurm` | `slurm` | the actual SLURM cluster (slurmctld + 2× slurmd + login) |
+| slurm-operator-crds | `oci://ghcr.io/slurmproject/charts/slurm-operator-crds` | (cluster-scoped) | `NodeSet` / `LoginSet` / `Token` CRDs |
+| slurm-operator | `oci://ghcr.io/slurmproject/charts/slurm-operator` | `slurm` | reconciles SLURM resources |
+| slurm | `oci://ghcr.io/slurmproject/charts/slurm` | `slurm` | the actual SLURM cluster (slurmctld + 2× slurmd + login) |
 
 Sized for the lab's two workers:
 
@@ -29,7 +29,7 @@ From the lab root, after `make all` finishes and `kubectl get nodes` shows
 3 Ready nodes:
 
 ```bash
-cd slinky
+cd slurm
 ./install.sh
 ```
 
@@ -40,9 +40,9 @@ stack, then the SLURM cluster with values from
 When done:
 
 ```bash
-./scripts/status.sh        # sinfo + squeue
-./scripts/login.sh         # interactive shell in the login pod
-./scripts/submit.sh examples/01-hello.sbatch
+./provisioning/status.sh        # sinfo + squeue
+./provisioning/login.sh         # interactive shell in the login pod
+./provisioning/submit.sh examples/01-hello.sbatch
 ```
 
 ## What to play with
@@ -60,9 +60,9 @@ When done:
 Recipe for the priority demo:
 
 ```bash
-./scripts/submit.sh examples/03-priority-low.sbatch    # fills both workers
-./scripts/submit.sh examples/03-priority-high.sbatch   # queues; jumps ahead by tier
-./scripts/status.sh                                    # watch the queue
+./provisioning/submit.sh examples/03-priority-low.sbatch    # fills both workers
+./provisioning/submit.sh examples/03-priority-high.sbatch   # queues; jumps ahead by tier
+./provisioning/status.sh                                    # watch the queue
 ```
 
 ### MPI
@@ -82,14 +82,14 @@ stack. Useful for *correctness*, not for benchmarking.
 ## Layout
 
 ```
-slinky/
+slurm-operator/
 ├── install.sh                # the full install, idempotent
 ├── uninstall.sh              # helm-uninstall the slurm bits; --all also removes cert-manager + local-path
 ├── values/
 │   ├── slurm.yaml            # 2 workers, 2 partitions, login pod ClusterIP
 │   └── slurm-operator.yaml   # operator overrides (default-ish)
-├── scripts/
-│   ├── lib.sh                # locates the login pod
+├── provisioning/
+│   ├── common.sh                # locates the login pod
 │   ├── login.sh              # kubectl exec -it into the login pod
 │   ├── submit.sh <file>      # cp + sbatch a script
 │   ├── status.sh             # sinfo + squeue + pod overview
@@ -109,12 +109,12 @@ provisioner logs in `local-path-storage`.
 **`mpicc not found` and apt-install fails.** The slurmd image is run as
 non-root in some chart versions. Either flip the chart's compute pod
 `securityContext.runAsUser` to `0`, or pre-bake an MPI image and override
-`nodesets.slinky.slurmd.image`.
+`nodesets.slurm.slurmd.image`.
 
 **`make all` from the lab root + `./install.sh` from here = full reset.**
 
 ## References
 
-- [Slinky overview (SchedMD)](https://www.schedmd.com/introducing-slinky-slurm-kubernetes/)
-- [slurm-operator docs](https://slinky.schedmd.com/projects/slurm-operator/)
-- [slurm-operator GitHub](https://github.com/SlinkyProject/slurm-operator)
+- [Slurm overview (SchedMD)](https://www.schedmd.com/introducing-slurm-slurm-kubernetes/)
+- [slurm-operator docs](https://slurm.schedmd.com/projects/slurm-operator/)
+- [slurm-operator GitHub](https://github.com/SlurmProject/slurm-operator)

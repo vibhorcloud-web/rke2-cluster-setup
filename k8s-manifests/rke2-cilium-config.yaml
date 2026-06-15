@@ -1,7 +1,7 @@
 # Override values for the bundled rke2-cilium HelmChart.
 # RKE2 picks this up because the file lives in:
-#   /var/lib/rancher/rke2/server/manifests/
-# Variables ${...} are substituted by 30-bootstrap-rke2.sh before upload.
+#   /var/lib/rancher/rke2/server/k8s-manifests/
+# Variables ${...} are substituted by bootstrap_cluster.sh before upload.
 apiVersion: helm.cattle.io/v1
 kind: HelmChartConfig
 metadata:
