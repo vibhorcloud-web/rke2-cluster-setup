@@ -39,6 +39,8 @@ packages:
   - jq
   - iproute2
   - apparmor-utils
+  - open-iscsi
+  - nfs-common
 write_files:
   - path: /etc/modules-load.d/k8s.conf
     content: |

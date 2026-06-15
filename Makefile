@@ -12,6 +12,7 @@ help:
 	@echo "  make vms         Create + boot 3 VMs via Multipass cloud-init"
 	@echo "  make cluster     Bootstrap RKE2 server, agents, and Cilium"
 	@echo "  make kubeconfig  Pull kubeconfig to .state/kubeconfig and print it"
+	@echo "  make argocd      Deploy ArgoCD and bootstrap GitOps"
 	@echo "  make verify      kubectl get nodes / pods / cilium"
 	@echo "  make destroy     Tear down VMs and lab state"
 	@echo "  make status      Show multipass instances + node status"
@@ -19,7 +20,7 @@ help:
 	@echo
 	@echo "  Optional extras: see ./slurm-operator/ for SLURM-on-Kubernetes examples (run manually)"
 
-all: prereqs vms cluster kubeconfig verify
+all: prereqs vms cluster kubeconfig argocd verify
 
 prereqs:
 	$(S)/prep_host.sh
@@ -32,6 +33,10 @@ cluster:
 
 kubeconfig:
 	$(S)/get_kubeconfig.sh --print
+
+argocd:
+	chmod +x $(S)/deploy_argocd.sh
+	$(S)/deploy_argocd.sh
 
 verify:
 	$(S)/test_cluster.sh
